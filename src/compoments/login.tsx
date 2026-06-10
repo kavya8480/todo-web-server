@@ -1,68 +1,131 @@
-import * as React from 'react';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { SignInPage, type AuthProvider } from '@toolpad/core/SignInPage';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Avatar,
+  Link,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
+interface LoginProps {
+  onRegisterClick: () => void;
+}
 
-const providers = [{ id: 'credentials', name: 'Registered Account' }];
-// preview-start
-const BRANDING = {
-  logo: (
-    <img
-      src="https://img.icons8.com/?size=100&id=ciHkwAJFgWOk&format=png&color=000000"
-      alt="To-do logo"
-      style={{ height: 40 }}
-    />
-  ),
-  title: 'To-do App',
-};
-// preview-end
-
-const signIn: (provider: AuthProvider) => void = async (provider) => {
-  const promise = new Promise<void>((resolve) => {
-    setTimeout(() => {
-      console.log(`Sign in with ${provider.id}`);
-      resolve();
-    }, 500);
-  });
-  return promise;
-};
-
-export default function LoginPage() {
-  const theme = useTheme();
+export default function Login({ onRegisterClick }: LoginProps) {
   return (
-    // preview-start
-    
-    <AppProvider branding={BRANDING} theme={theme}>
+    <Paper
+      elevation={12}
+      sx={{
+        mt:10,
+        width: 400,
+        p: 5,
+        borderRadius: 5,
+        textAlign: "center",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <Avatar
+        sx={{
+          bgcolor: "primary.main",
+          width: 70,
+          height: 70,
+          mx: "auto",
+          mb: 2,
+        }}
+      >
+        <LockOutlinedIcon fontSize="large" />
+      </Avatar>
+
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{ mb: 1 }}
+      >
+        Welcome Back
+      </Typography>
+
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 4 }}
+      >
+        Sign in to continue
+      </Typography>
+
       <Box
-    sx={{
-      
-    '& .MuiCard-root': {
-      width: '700px',
-    },
+        component="form"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2.5,
+        }}
+      >
+        <TextField
+          label="Email Address"
+          type="email"
+          fullWidth
+          variant="outlined"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 3,
+            },
+          }}
+        />
 
-    '& .MuiBox-root.css-0': {
-      width: '340px',
-      minHeight: '200px',
-      
-    }
-  }}
+        <TextField
+          label="Password"
+          type="password"
+          fullWidth
+          variant="outlined"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 3,
+            },
+          }}
+        />
 
->
-      <SignInPage
-        signIn={signIn}
-        providers={providers}
-        slotProps={{ emailField: { autoFocus: false }, form: { noValidate: true } }}
-/>
+        <Typography
+          variant="body2"
+          color="primary"
+          sx={{
+            textAlign: "right",
+            cursor: "pointer",
+          }}
+        >
+          Forgot Password?
+        </Typography>
 
-<div style={{ textAlign: 'center', marginTop: '-239px' ,color:''}}>
-      Don't have an account?{" "}
-      <a href="/signup" style={{textDecoration:'none'}}>Create Account</a>
-    </div>
-</Box>
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          sx={{
+            py: 1.5,
+            borderRadius: 3,
+            fontSize: "1rem",
+            fontWeight: "bold",
+          }}
+        >
+          Sign In
+        </Button>
 
-    </AppProvider>
-    // preview-end
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Don't have an account?{" "}
+          <Link
+            component="button"
+            underline="hover"
+            onClick={onRegisterClick}
+            sx={{
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Sign Up
+          </Link>
+        </Typography>
+      </Box>
+    </Paper>
   );
 }
