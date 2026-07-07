@@ -21,6 +21,7 @@ import AddTask from "../pages/addTask";
 import EditTask from "../pages/editTask";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import axios from 'axios';
 
 export default function Dashboard() {
   const [anchorEl, setAnchorEl] =
@@ -55,40 +56,78 @@ const [tasks, setTasks] = React.useState<any[]>([]);
 const [taskSnackbar, setTaskSnackbar] = React.useState(false);
 const [taskMessage, setTaskMessage] = React.useState("");
 
-
+//  GETALLTASK 
 React.useEffect(() => {
-  const savedTasks = localStorage.getItem("tasks");
-  if (savedTasks) {
-    setTasks(JSON.parse(savedTasks));
+    axios
+      .get("http://localhost:4000/task/getAllTask")
+      .then((response) => {
+        const mappedTasks = response.data.all_tasks.map((task: any) => ({
+          id: task.external_id,
+          name: task.name,
+          description: task.description,
+          notes: task.notes,
+          date: task.due_date,
+          status: task.status,      // Default value
+          priority: task.priority,// Default value
+        }));
+
+        setTasks(mappedTasks);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+
+const handleCreateTask = async (task: any) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:4000/task/create",
+      {
+        name: task.name,
+        description: task.description,
+        notes: task.notes,
+        due_date: task.date,
+      }
+    );
+
+    const createdTask = response.data.task;
+
+    setTasks((prev) => [
+      ...prev,
+      {
+        id: createdTask.external_id,
+        name: createdTask.name,
+        description: createdTask.description,
+        notes: createdTask.notes,
+        date: createdTask.due_date,
+        status: createdTask.status,
+        priority: "Medium",
+      },
+    ]);
+
+    setTaskMessage("🎉 Task Created Successfully");
+    setTaskSnackbar(true);
+
+  } catch (error) {
+    console.log(error);
   }
-}, []);
-
-
-const handleCreateTask = (task: any) => {
-  const newTask = {
-    ...task,
-    id: Date.now(),
-    date: task.date || new Date().toISOString().split("T")[0],
-    status: task.status || "Pending",
-  };
-
-  const updated = [...tasks, newTask];
-
-  setTasks(updated);
-  localStorage.setItem("tasks", JSON.stringify(updated));
-
-  setTaskMessage("🎉 Task Created Successfully");
-  setTaskSnackbar(true);
 };
 
-const handleDeleteTask = (index: number) => {
-  const updated = tasks.filter((_, i) => i !== index);
+const handleDeleteTask = async (taskId: string) => {
+  try {
+    await axios.delete(
+      `http://localhost:4000/task/delete/${taskId}`
+    );
 
-  setTasks(updated);
-  localStorage.setItem("tasks", JSON.stringify(updated));
+    const updated = tasks.filter((task) => task.id !== taskId);
 
-  setTaskMessage("🗑️ Task Deleted Successfully");
-  setTaskSnackbar(true);
+    setTasks(updated);
+
+    setTaskMessage("🗑️ Task Deleted Successfully");
+    setTaskSnackbar(true);
+
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const totalTasks = tasks.length;
@@ -157,17 +196,30 @@ const handleEditTask = (task: any) => {
   setEditOpen(true);
 };
 
-const handleUpdateTask = (updatedTask: any) => {
-  const updated = tasks.map((t) =>
-    t.id === updatedTask.id ? updatedTask : t
-  );
+const handleUpdateTask = async (updatedTask: any) => {
+  try {
+    await axios.post(
+      `http://localhost:4000/task/update/${updatedTask.id}`,
+      {
+        name: updatedTask.name,
+        description: updatedTask.description,
+        notes: updatedTask.notes,
+        due_date: updatedTask.date,
+        status: updatedTask.status,
+        priority: updatedTask.priority,
+      }
+    );
 
-  setTasks(updated);
-  localStorage.setItem("tasks", JSON.stringify(updated));
+    const updated = tasks.map((t) =>
+      t.id === updatedTask.id ? updatedTask : t
+    );
 
-  setEditSnackbar(true); // ✅ SHOW MESSAGE
+    setTasks(updated);
+    setEditSnackbar(true);
+  } catch (error) {
+    console.log(error);
+  }
 };
-
 
   return (
     
@@ -386,10 +438,10 @@ const handleUpdateTask = (updatedTask: any) => {
 
   {/* DELETE BUTTON */}
   <IconButton
-    onClick={(e) => {
-      e.stopPropagation();
-      handleDeleteTask(i);
-    }}
+   onClick={(e) => {
+    e.stopPropagation();
+    handleDeleteTask(task.id);
+  }}
     sx={{
       bgcolor: "#fef2f2",
       color: "#ef4444",
