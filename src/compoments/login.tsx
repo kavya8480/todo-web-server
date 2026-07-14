@@ -1,3 +1,5 @@
+import { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Paper,
@@ -8,17 +10,51 @@ import {
   Link,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
   onRegisterClick: () => void;
 }
 
 export default function Login({ onRegisterClick }: LoginProps) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        "http://localhost:4000/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      console.log("Login Success:", response.data);
+
+      // Example:
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      navigate("/dashboard");
+
+    } catch (error: any) {
+      console.error("Login Failed:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Paper
       elevation={12}
       sx={{
-        mt:10,
+        mt: 10,
         width: 400,
         p: 5,
         borderRadius: 5,
@@ -38,24 +74,17 @@ export default function Login({ onRegisterClick }: LoginProps) {
         <LockOutlinedIcon fontSize="large" />
       </Avatar>
 
-      <Typography
-        variant="h4"
-        fontWeight="bold"
-        sx={{ mb: 1 }}
-      >
+      <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
         Welcome Back
       </Typography>
 
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        sx={{ mb: 4 }}
-      >
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Sign in to continue
       </Typography>
 
       <Box
         component="form"
+        onSubmit={handleLogin}
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -66,7 +95,8 @@ export default function Login({ onRegisterClick }: LoginProps) {
           label="Email Address"
           type="email"
           fullWidth
-          variant="outlined"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: 3,
@@ -78,7 +108,8 @@ export default function Login({ onRegisterClick }: LoginProps) {
           label="Password"
           type="password"
           fullWidth
-          variant="outlined"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: 3,
@@ -98,9 +129,11 @@ export default function Login({ onRegisterClick }: LoginProps) {
         </Typography>
 
         <Button
+          type="submit"
           variant="contained"
           size="large"
           fullWidth
+          disabled={loading}
           sx={{
             py: 1.5,
             borderRadius: 3,
@@ -108,7 +141,7 @@ export default function Login({ onRegisterClick }: LoginProps) {
             fontWeight: "bold",
           }}
         >
-          Sign In
+          {loading ? "Signing In..." : "Sign In"}
         </Button>
 
         <Typography variant="body2" sx={{ mt: 1 }}>

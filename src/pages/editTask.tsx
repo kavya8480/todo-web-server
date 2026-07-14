@@ -6,10 +6,10 @@ import {
   TextField,
   Button,
   Stack,
-  MenuItem,
   IconButton,
   Snackbar,
   Fade,
+  Chip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -148,38 +148,58 @@ export default function EditTask({
               type="date"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={form.date || ""}
+              value={form.date ? form.date.split("T")[0] : ""}
               onChange={(e) =>
                 handleChange("date", e.target.value)
               }
             />
 
-            <TextField
-              select
-              label="Priority"
-              fullWidth
-              value={form.priority || "Low"}
-              onChange={(e) =>
-                handleChange("priority", e.target.value)
-              }
-            >
-              <MenuItem value="High">🔥 High</MenuItem>
-              <MenuItem value="Medium">⚡ Medium</MenuItem>
-              <MenuItem value="Low">🌿 Low</MenuItem>
-            </TextField>
+            <Typography fontWeight={600} mb={1}>
+              📌 Priority
+            </Typography>
 
-            <TextField
-              select
-              label="Status"
-              fullWidth
-              value={form.status || "Pending"}
-              onChange={(e) =>
-                handleChange("status", e.target.value)
-              }
-            >
-              <MenuItem value="Pending">🟡 Pending</MenuItem>
-              <MenuItem value="Completed">🟢 Completed</MenuItem>
-            </TextField>
+            <Stack direction="row" spacing={2} mb={3}>
+              <Chip
+                label="🔴 High"
+                clickable
+                color={form.priority === "High" ? "error" : "default"}
+                onClick={() => handleChange("priority", "High")}
+              />
+
+              <Chip
+                label="🟠 Medium"
+                clickable
+                color={form.priority === "Medium" ? "warning" : "default"}
+                onClick={() => handleChange("priority", "Medium")}
+              />
+
+              <Chip
+                label="🔵 Low"
+                clickable
+                color={form.priority === "Low" ? "primary" : "default"}
+                onClick={() => handleChange("priority", "Low")}
+              />
+            </Stack>
+            {/* status  */}
+            <Typography fontWeight={600} mb={1}>
+              ✅ Status
+            </Typography>
+
+            <Stack direction="row" spacing={2}>
+              <Chip
+                label="🟡 Pending"
+                clickable
+                color={form.status === "Pending" ? "warning" : "default"}
+                onClick={() => handleChange("status", "Pending")}
+              />
+
+              <Chip
+                label="🟢 Completed"
+                clickable
+                color={form.status === "Completed" ? "success" : "default"}
+                onClick={() => handleChange("status", "Completed")}
+              />
+            </Stack>
 
             {/* BUTTONS */}
             <Stack direction="row" spacing={2} mt={1}>

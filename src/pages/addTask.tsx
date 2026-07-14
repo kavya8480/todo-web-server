@@ -75,7 +75,7 @@ export default function AddTask({ open, setOpen, onCreate }: Props) {
           background: "rgba(255,255,255,0.9)",
           border: "1px solid rgba(255,255,255,0.4)",
           boxShadow: "0 25px 80px rgba(0,0,0,0.25)",
-        }}
+        }} 
       >
         {/* HEADER */}
         <Stack direction="row" justifyContent="space-between" alignItems="center">

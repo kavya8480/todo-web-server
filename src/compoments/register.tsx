@@ -13,12 +13,62 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LockIcon from "@mui/icons-material/Lock";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface RegisterProps {
     onLoginClick: () => void;
 }
 
 export default function SignUp({ onLoginClick }: RegisterProps) {
+   const navigate = useNavigate();
+   const [firstName, setFirstName] = useState("");
+const [lastName, setLastName] = useState("");
+const [mobNumber, setMobNumber] = useState("");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+const [loading, setLoading] = useState(false);
+
+   const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await axios.post(
+      "http://localhost:4000/auth/register",
+     {
+  first_name: firstName,
+  last_name: lastName,
+  mob_number: mobNumber,
+  email,
+  password,
+}
+    );
+
+    console.log("Registration Success:", response.data);
+
+    localStorage.setItem("accessToken", response.data.accessToken);
+    localStorage.setItem("refreshToken", response.data.refreshToken);
+
+    navigate("/dashboard");
+  } catch (error: any) {
+    console.error(
+      "Registration Failed:",
+      error.response?.data || error.message
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <Box
   sx={{
@@ -73,6 +123,7 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
 
       <Box
         component="form"
+        onSubmit={handleRegister}
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -81,7 +132,9 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
       >
         <TextField
           label="First Name"
-          fullWidth
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          fullWidth 
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -98,6 +151,8 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
 
         <TextField
           label="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           fullWidth
           InputProps={{
             startAdornment: (
@@ -115,6 +170,8 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
 
         <TextField
           label="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           fullWidth
           InputProps={{
             startAdornment: (
@@ -132,6 +189,8 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
 
         <TextField
           label="Phone Number"
+            value={mobNumber}
+            onChange={(e) => setMobNumber(e.target.value)}
           fullWidth
           InputProps={{
             startAdornment: (
@@ -150,6 +209,8 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
         <TextField
           label="Password"
           type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           fullWidth
           InputProps={{
             startAdornment: (
@@ -168,6 +229,8 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
         <TextField
           label="Confirm Password"
           type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           fullWidth
           InputProps={{
             startAdornment: (
@@ -184,7 +247,9 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
         />
 
         <Button
-          variant="contained"
+  type="submit"
+  variant="contained"
+  disabled={loading}
           size="large"
           sx={{
             py: 1.5,
@@ -196,7 +261,7 @@ export default function SignUp({ onLoginClick }: RegisterProps) {
               "linear-gradient(135deg,#1976d2,#42a5f5)",
           }}
         >
-          Create Account
+          {loading ? "Creating Account..." : "Create Account"}
         </Button>
 
         <Typography color="text.secondary">
