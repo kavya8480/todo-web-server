@@ -268,7 +268,7 @@ const [loading, setLoading] = useState(false);
           Already have an account?{" "}
           <Typography
     component="span"
-    onClick={onLoginClick}
+    onClick={() => navigate("/login")}
     sx={{
       fontWeight: 700,
       color: "primary.main",
